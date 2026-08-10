@@ -140,6 +140,21 @@
     "wiBlurInputDescription": {
         "message": "Defina a quantidade de desfoque quando ocioso."
     },
+    "toggleSchedule": {
+        "message": "Agendamento automático"
+    },
+    "toggleScheduleDescription": {
+        "message": "Ativa ou desativa as configurações de privacidade automaticamente com base em um cronograma diário."
+    },
+    "scheduleStartTimeLabel": {
+        "message": "Hora de início:"
+    },
+    "scheduleEndTimeLabel": {
+        "message": "Hora de término:"
+    },
+    "saveSchedule": {
+        "message": "Salvar agendamento"
+    },
     "footerBugReports": {
         "message": "Relatórios de bugs & Sugestões"
     },

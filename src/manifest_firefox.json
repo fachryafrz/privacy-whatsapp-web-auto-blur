@@ -3,7 +3,7 @@
   "default_locale": "en",
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "version": "3.4.4",
+  "version": "3.5.0",
   "action": {
     "default_title": "__MSG_extensionName__",
     "default_popup": "popup/popup.html",
@@ -19,7 +19,7 @@
     "48": "images/icon48.png",
     "128": "images/icon128.png"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "alarms"],
   "host_permissions": ["https://web.whatsapp.com/*"],
   "background": {
     "scripts": ["background.js"]

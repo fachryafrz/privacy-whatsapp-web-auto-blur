@@ -36,6 +36,9 @@ function saveSettings() {
       result.settings.on = checked;
     } else if (id === "blurOnIdle") {
       result.settings.blurOnIdle.isEnabled = checked;
+    } else if (id === "schedule") {
+      result.settings.schedule.isEnabled = checked;
+      result.settings.schedule.lastScheduledTrigger = 0;
     } else {
       result.settings.styles[id] = checked;
     }
@@ -105,6 +108,12 @@ const cancelAdvancedSetting = (ev) => {
           ? result.settings?.blurOnIdle?.idleTimeout || 15
           : result.settings.varStyles[varName]
       );
+    });
+    popoverElement.querySelectorAll("input[type='time']").forEach(input => {
+      const name = input.name;
+      if (name === "startTime" || name === "endTime") {
+        input.value = result.settings?.schedule?.[name] || (name === "startTime" ? "09:00" : "17:00");
+      }
     });
 
     popoverElement.parentNode.querySelector(".trigger-btn.active")?.classList.remove("active");
@@ -186,6 +195,29 @@ forms.forEach((form) => {
   form.addEventListener("submit", saveFormSettings);
 })
 
+const scheduleForm = document.querySelector("form.schedule-form");
+if (scheduleForm) {
+  scheduleForm.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const formData = new FormData(ev.target);
+    const startTime = formData.get("startTime");
+    const endTime = formData.get("endTime");
+
+    browser.storage.sync.get([settingsIdentifier]).then((result) => {
+      if (!result.hasOwnProperty(settingsIdentifier)) {
+        browser.runtime.reload();
+        return;
+      }
+      result.settings.schedule.startTime = startTime;
+      result.settings.schedule.endTime = endTime;
+      result.settings.schedule.lastScheduledTrigger = 0;
+      browser.storage.sync.set(result);
+
+      showToast(browser.i18n.getMessage('toastSaved'));
+    });
+  });
+}
+
 
 // Load settings and update switches
 browser.storage.sync.get([settingsIdentifier]).then((result) => {
@@ -200,6 +232,8 @@ browser.storage.sync.get([settingsIdentifier]).then((result) => {
       checkbox.checked = result.settings.on;
     } else if (id === "blurOnIdle") {
       checkbox.checked = result.settings?.blurOnIdle?.isEnabled;
+    } else if (id === "schedule") {
+      checkbox.checked = result.settings?.schedule?.isEnabled;
     } else {
       checkbox.checked = result.settings.styles[id];
     }
@@ -215,5 +249,12 @@ browser.storage.sync.get([settingsIdentifier]).then((result) => {
       numInput.value = parseInt(result.settings.varStyles[varName]);
     }
   })
+
+  if (result.settings.schedule) {
+    const startInput = document.getElementById("scheduleStartTime");
+    const endInput = document.getElementById("scheduleEndTime");
+    if (startInput) startInput.value = result.settings.schedule.startTime || "09:00";
+    if (endInput) endInput.value = result.settings.schedule.endTime || "17:00";
+  }
 
 });

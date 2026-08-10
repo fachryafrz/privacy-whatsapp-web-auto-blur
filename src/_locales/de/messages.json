@@ -140,6 +140,21 @@
     "wiBlurInputDescription": {
         "message": "Setze Intensität wenn Abwesend."
     },
+    "toggleSchedule": {
+        "message": "Automatischer Zeitplan"
+    },
+    "toggleScheduleDescription": {
+        "message": "Schaltet die Privatsphäre-Einstellungen automatisch nach einem täglichen Zeitplan ein oder aus."
+    },
+    "scheduleStartTimeLabel": {
+        "message": "Startzeit:"
+    },
+    "scheduleEndTimeLabel": {
+        "message": "Endzeit:"
+    },
+    "saveSchedule": {
+        "message": "Zeitplan speichern"
+    },
     "footerBugReports": {
         "message": "Fehlerberichte & Vorschläge"
     },

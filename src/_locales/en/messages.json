@@ -140,6 +140,21 @@
     "wiBlurInputDescription": {
         "message": "Set Blur Amount when Idle."
     },
+    "toggleSchedule": {
+        "message": "Auto schedule"
+    },
+    "toggleScheduleDescription": {
+        "message": "Turn privacy settings on/off automatically based on a daily schedule."
+    },
+    "scheduleStartTimeLabel": {
+        "message": "Start time:"
+    },
+    "scheduleEndTimeLabel": {
+        "message": "End time:"
+    },
+    "saveSchedule": {
+        "message": "Save schedule"
+    },
     "footerBugReports": {
         "message": "Bug reports & Suggestions"
     },
