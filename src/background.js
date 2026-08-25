@@ -44,6 +44,7 @@ const defaultSettings = {
       isEnabled: false,
       startTime: "09:00",
       endTime: "17:00",
+      days: [0, 1, 2, 3, 4, 5, 6],
       lastScheduledTrigger: 0
     }
   }
@@ -65,27 +66,45 @@ function mergeDefaultSettings(currentSettings) {
   return merged;
 }
 
-function getMostRecentTransition(startTime, endTime) {
+function getMostRecentTransition(startTime, endTime, days = [0, 1, 2, 3, 4, 5, 6]) {
   const now = new Date();
-  
-  const getOccurrence = (timeStr, offsetDays = 0) => {
-    const [h, m] = timeStr.split(":").map(Number);
-    return new Date(now.getFullYear(), now.getMonth(), now.getDate() + offsetDays, h, m, 0, 0);
-  };
+  const transitions = [];
 
-  const startToday = getOccurrence(startTime, 0);
-  const startYesterday = getOccurrence(startTime, -1);
-  const lastStart = startToday <= now ? startToday : startYesterday;
+  const [startH, startM] = startTime.split(":").map(Number);
+  const [endH, endM] = endTime.split(":").map(Number);
 
-  const endToday = getOccurrence(endTime, 0);
-  const endYesterday = getOccurrence(endTime, -1);
-  const lastEnd = endToday <= now ? endToday : endYesterday;
+  // Evaluate transitions for the past 7 days up to today
+  for (let offset = -7; offset <= 0; offset++) {
+    const baseDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset, 0, 0, 0, 0);
+    const dayOfWeek = baseDate.getDay();
 
-  if (lastStart > lastEnd) {
-    return { time: lastStart.getTime(), state: true };
-  } else {
-    return { time: lastEnd.getTime(), state: false };
+    if (days.includes(dayOfWeek)) {
+      const startDate = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), startH, startM, 0, 0);
+      if (startDate <= now) {
+        transitions.push({ time: startDate.getTime(), state: true });
+      }
+
+      let endDate;
+      if (startH < endH || (startH === endH && startM < endM)) {
+        // Same day schedule
+        endDate = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), endH, endM, 0, 0);
+      } else {
+        // Overnight schedule (ends the next calendar day)
+        endDate = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1, endH, endM, 0, 0);
+      }
+
+      if (endDate <= now) {
+        transitions.push({ time: endDate.getTime(), state: false });
+      }
+    }
   }
+
+  if (transitions.length === 0) {
+    return { time: 0, state: false };
+  }
+
+  transitions.sort((a, b) => b.time - a.time);
+  return transitions[0];
 }
 
 function checkSchedule() {
@@ -94,7 +113,8 @@ function checkSchedule() {
     const schedule = result.settings.schedule;
     if (!schedule || !schedule.isEnabled) return;
 
-    const mostRecent = getMostRecentTransition(schedule.startTime, schedule.endTime);
+    const days = schedule.days || [0, 1, 2, 3, 4, 5, 6];
+    const mostRecent = getMostRecentTransition(schedule.startTime, schedule.endTime, days);
     
     // If the transition happened after the last one we processed
     if (mostRecent.time > (schedule.lastScheduledTrigger || 0)) {
@@ -181,10 +201,14 @@ browser.storage.onChanged.addListener((changes, area) => {
   const oldSettings = changes.settings.oldValue;
   const newSettings = changes.settings.newValue;
 
+  const oldDays = oldSettings?.schedule?.days ? JSON.stringify(oldSettings.schedule.days) : "";
+  const newDays = newSettings?.schedule?.days ? JSON.stringify(newSettings.schedule.days) : "";
+
   const scheduleChanged = !oldSettings || !oldSettings.schedule ||
     oldSettings.schedule.isEnabled !== newSettings.schedule.isEnabled ||
     oldSettings.schedule.startTime !== newSettings.schedule.startTime ||
-    oldSettings.schedule.endTime !== newSettings.schedule.endTime;
+    oldSettings.schedule.endTime !== newSettings.schedule.endTime ||
+    oldDays !== newDays;
 
   if (scheduleChanged) {
     updateAlarms();

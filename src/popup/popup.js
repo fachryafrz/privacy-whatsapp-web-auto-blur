@@ -115,6 +115,15 @@ const cancelAdvancedSetting = (ev) => {
         input.value = result.settings?.schedule?.[name] || (name === "startTime" ? "09:00" : "17:00");
       }
     });
+    const savedDays = result.settings?.schedule?.days || [0, 1, 2, 3, 4, 5, 6];
+    popoverElement.querySelectorAll(".day-btn").forEach(btn => {
+      const dayNum = parseInt(btn.dataset.day, 10);
+      if (savedDays.includes(dayNum)) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
 
     popoverElement.parentNode.querySelector(".trigger-btn.active")?.classList.remove("active");
     popoverElement.setAttribute("aria-hidden", "true");
@@ -130,6 +139,14 @@ triggerButtons.forEach((triggerBtn) => {
 const cancelButtons = document.querySelectorAll(".cancel-btn");
 cancelButtons.forEach((cancelBtn) => {
   cancelBtn.addEventListener("click", cancelAdvancedSetting);
+});
+
+// Day buttons toggle click
+const dayButtons = document.querySelectorAll(".day-btn");
+dayButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    btn.classList.toggle("active");
+  });
 });
 
 // toast utility
@@ -202,6 +219,8 @@ if (scheduleForm) {
     const formData = new FormData(ev.target);
     const startTime = formData.get("startTime");
     const endTime = formData.get("endTime");
+    const activeDayButtons = scheduleForm.querySelectorAll(".day-btn.active");
+    const days = Array.from(activeDayButtons).map(btn => parseInt(btn.dataset.day, 10));
 
     browser.storage.sync.get([settingsIdentifier]).then((result) => {
       if (!result.hasOwnProperty(settingsIdentifier)) {
@@ -210,6 +229,7 @@ if (scheduleForm) {
       }
       result.settings.schedule.startTime = startTime;
       result.settings.schedule.endTime = endTime;
+      result.settings.schedule.days = days;
       result.settings.schedule.lastScheduledTrigger = 0;
       browser.storage.sync.set(result);
 
@@ -255,6 +275,16 @@ browser.storage.sync.get([settingsIdentifier]).then((result) => {
     const endInput = document.getElementById("scheduleEndTime");
     if (startInput) startInput.value = result.settings.schedule.startTime || "09:00";
     if (endInput) endInput.value = result.settings.schedule.endTime || "17:00";
+
+    const days = result.settings.schedule.days || [0, 1, 2, 3, 4, 5, 6];
+    document.querySelectorAll(".day-btn").forEach(btn => {
+      const dayNum = parseInt(btn.dataset.day, 10);
+      if (days.includes(dayNum)) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
   }
 
 });

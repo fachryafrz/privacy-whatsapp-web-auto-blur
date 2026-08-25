@@ -491,6 +491,36 @@
           background-color: color-mix(in srgb, var(--bg-color-submit-btn), var(--text-color) 15%);
           border-color: color-mix(in srgb, var(--bg-color-submit-btn), var(--text-color) 15%);
         }
+        .day-selector {
+          display: flex;
+          justify-content: space-between;
+          gap: 2px;
+          margin-top: 4px;
+        }
+        .day-btn {
+          flex: 1;
+          height: 22px;
+          padding: 0;
+          margin: 0;
+          font-size: 10px;
+          font-weight: bold;
+          border: 1px solid var(--border-color-blur-input);
+          border-radius: 3px;
+          background-color: var(--bg-color);
+          color: var(--text-color-unit);
+          cursor: pointer;
+          transition: all .2s;
+          outline: none;
+        }
+        .day-btn:hover {
+          border-color: var(--primary-color);
+          color: var(--text-color);
+        }
+        .day-btn.active {
+          background-color: var(--primary-color);
+          border-color: var(--primary-color);
+          color: #ffffff;
+        }
         /* toaster style */
         #toast-container {
           position: fixed;
@@ -879,6 +909,18 @@
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                     <span style="width: 50%;"><locales data-locale="scheduleEndTimeLabel"></locales></span>
                     <input type="time" name="endTime" id="scheduleEndTime" required style="width: 75px; height: 25px; padding: 0 4px; border: 1px solid var(--border-color-blur-input); border-radius: 4px; font-size: 11px; color: var(--text-color); background-color: var(--bg-color); outline: none;">
+                  </div>
+                  <div style="margin-bottom: 8px;">
+                    <div style="margin-bottom: 4px;"><locales data-locale="scheduleDaysLabel"></locales></div>
+                    <div class="day-selector">
+                      <button type="button" class="day-btn" data-day="0" data-localetitle="daySunFull"><locales data-locale="daySun"></locales></button>
+                      <button type="button" class="day-btn" data-day="1" data-localetitle="dayMonFull"><locales data-locale="dayMon"></locales></button>
+                      <button type="button" class="day-btn" data-day="2" data-localetitle="dayTueFull"><locales data-locale="dayTue"></locales></button>
+                      <button type="button" class="day-btn" data-day="3" data-localetitle="dayWedFull"><locales data-locale="dayWed"></locales></button>
+                      <button type="button" class="day-btn" data-day="4" data-localetitle="dayThuFull"><locales data-locale="dayThu"></locales></button>
+                      <button type="button" class="day-btn" data-day="5" data-localetitle="dayFriFull"><locales data-locale="dayFri"></locales></button>
+                      <button type="button" class="day-btn" data-day="6" data-localetitle="daySatFull"><locales data-locale="daySat"></locales></button>
+                    </div>
                   </div>
                   <button type="submit" data-localetitle="saveSchedule" style="width: 100%; height: 25px; margin: 0; padding: 0; text-align: center; line-height: 23px; border: 1px solid var(--border-color-blur-input); border-radius: 4px; background-color: var(--bg-color-submit-btn); color: var(--text-color); cursor: pointer; transition: .3s; font-size: 11px;">✔</button>
                 </form>

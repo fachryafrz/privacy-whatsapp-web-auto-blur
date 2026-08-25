@@ -152,6 +152,51 @@
     "scheduleEndTimeLabel": {
         "message": "Hora de término:"
     },
+    "scheduleDaysLabel": {
+        "message": "Dias ativos:"
+    },
+    "daySun": {
+        "message": "Do"
+    },
+    "dayMon": {
+        "message": "Se"
+    },
+    "dayTue": {
+        "message": "Te"
+    },
+    "dayWed": {
+        "message": "Qu"
+    },
+    "dayThu": {
+        "message": "Qu"
+    },
+    "dayFri": {
+        "message": "Se"
+    },
+    "daySat": {
+        "message": "Sá"
+    },
+    "daySunFull": {
+        "message": "Domingo"
+    },
+    "dayMonFull": {
+        "message": "Segunda-feira"
+    },
+    "dayTueFull": {
+        "message": "Terça-feira"
+    },
+    "dayWedFull": {
+        "message": "Quarta-feira"
+    },
+    "dayThuFull": {
+        "message": "Quinta-feira"
+    },
+    "dayFriFull": {
+        "message": "Sexta-feira"
+    },
+    "daySatFull": {
+        "message": "Sábado"
+    },
     "saveSchedule": {
         "message": "Salvar agendamento"
     },

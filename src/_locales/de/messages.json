@@ -152,6 +152,51 @@
     "scheduleEndTimeLabel": {
         "message": "Endzeit:"
     },
+    "scheduleDaysLabel": {
+        "message": "Aktive Tage:"
+    },
+    "daySun": {
+        "message": "So"
+    },
+    "dayMon": {
+        "message": "Mo"
+    },
+    "dayTue": {
+        "message": "Di"
+    },
+    "dayWed": {
+        "message": "Mi"
+    },
+    "dayThu": {
+        "message": "Do"
+    },
+    "dayFri": {
+        "message": "Fr"
+    },
+    "daySat": {
+        "message": "Sa"
+    },
+    "daySunFull": {
+        "message": "Sonntag"
+    },
+    "dayMonFull": {
+        "message": "Montag"
+    },
+    "dayTueFull": {
+        "message": "Dienstag"
+    },
+    "dayWedFull": {
+        "message": "Mittwoch"
+    },
+    "dayThuFull": {
+        "message": "Donnerstag"
+    },
+    "dayFriFull": {
+        "message": "Freitag"
+    },
+    "daySatFull": {
+        "message": "Samstag"
+    },
     "saveSchedule": {
         "message": "Zeitplan speichern"
     },
