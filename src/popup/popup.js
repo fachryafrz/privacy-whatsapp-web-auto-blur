@@ -38,7 +38,6 @@ function saveSettings() {
       result.settings.blurOnIdle.isEnabled = checked;
     } else if (id === "schedule") {
       result.settings.schedule.isEnabled = checked;
-      result.settings.schedule.lastScheduledTrigger = 0;
     } else {
       result.settings.styles[id] = checked;
     }
@@ -105,17 +104,19 @@ const cancelAdvancedSetting = (ev) => {
       const varName = input.dataset.varName;
       input.value = parseInt(
         varName === "itBlur"
-          ? result.settings?.blurOnIdle?.idleTimeout || 15
+          ? result.settings?.blurOnIdle?.idleTimeout ?? 15
           : result.settings.varStyles[varName]
       );
     });
     popoverElement.querySelectorAll("input[type='time']").forEach(input => {
       const name = input.name;
       if (name === "startTime" || name === "endTime") {
-        input.value = result.settings?.schedule?.[name] || (name === "startTime" ? "09:00" : "17:00");
+        input.value = result.settings?.schedule?.[name] ?? (name === "startTime" ? "09:00" : "17:00");
       }
     });
-    const savedDays = result.settings?.schedule?.days || [0, 1, 2, 3, 4, 5, 6];
+    const savedDays = Array.isArray(result.settings?.schedule?.days)
+      ? result.settings.schedule.days
+      : [0, 1, 2, 3, 4, 5, 6];
     popoverElement.querySelectorAll(".day-btn").forEach(btn => {
       const dayNum = parseInt(btn.dataset.day, 10);
       if (savedDays.includes(dayNum)) {
@@ -230,7 +231,6 @@ if (scheduleForm) {
       result.settings.schedule.startTime = startTime;
       result.settings.schedule.endTime = endTime;
       result.settings.schedule.days = days;
-      result.settings.schedule.lastScheduledTrigger = 0;
       browser.storage.sync.set(result);
 
       showToast(browser.i18n.getMessage('toastSaved'));
@@ -264,19 +264,21 @@ browser.storage.sync.get([settingsIdentifier]).then((result) => {
     const numInput = form.querySelector(`input[type="number"]`)
     const varName = numInput.dataset.varName;
     if (varName === "itBlur") {
-      numInput.value = parseInt(result.settings?.blurOnIdle?.idleTimeout || 15);
+      numInput.value = parseInt(result.settings?.blurOnIdle?.idleTimeout ?? 15);
     } else {
       numInput.value = parseInt(result.settings.varStyles[varName]);
     }
   })
 
-  if (result.settings.schedule) {
+  if (result.settings?.schedule) {
     const startInput = document.getElementById("scheduleStartTime");
     const endInput = document.getElementById("scheduleEndTime");
-    if (startInput) startInput.value = result.settings.schedule.startTime || "09:00";
-    if (endInput) endInput.value = result.settings.schedule.endTime || "17:00";
+    if (startInput) startInput.value = result.settings.schedule.startTime ?? "09:00";
+    if (endInput) endInput.value = result.settings.schedule.endTime ?? "17:00";
 
-    const days = result.settings.schedule.days || [0, 1, 2, 3, 4, 5, 6];
+    const days = Array.isArray(result.settings.schedule.days)
+      ? result.settings.schedule.days
+      : [0, 1, 2, 3, 4, 5, 6];
     document.querySelectorAll(".day-btn").forEach(btn => {
       const dayNum = parseInt(btn.dataset.day, 10);
       if (days.includes(dayNum)) {
