@@ -231,53 +231,53 @@ if (scheduleForm) {
       result.settings.schedule.startTime = startTime;
       result.settings.schedule.endTime = endTime;
       result.settings.schedule.days = days;
-      browser.storage.sync.set(result);
+      browser.storage.sync.set(result).then(() => {
+        try {
+          browser.runtime.sendMessage({ action: "checkSchedule" });
+        } catch (e) {}
+      });
 
       showToast(browser.i18n.getMessage('toastSaved'));
     });
   });
 }
 
-
-// Load settings and update switches
-browser.storage.sync.get([settingsIdentifier]).then((result) => {
-  if (!result.hasOwnProperty(settingsIdentifier)) {
-    browser.runtime.reload();
-    return;
-  }
+function applySettingsToUI(settings) {
+  if (!settings || typeof settings !== "object") return;
 
   switches.forEach((checkbox) => {
     let id = checkbox.dataset.style;
-    if (id == "on") {
-      checkbox.checked = result.settings.on;
+    if (id === "on") {
+      checkbox.checked = settings.on ?? false;
     } else if (id === "blurOnIdle") {
-      checkbox.checked = result.settings?.blurOnIdle?.isEnabled;
+      checkbox.checked = settings?.blurOnIdle?.isEnabled ?? false;
     } else if (id === "schedule") {
-      checkbox.checked = result.settings?.schedule?.isEnabled;
+      checkbox.checked = settings?.schedule?.isEnabled ?? false;
     } else {
-      checkbox.checked = result.settings.styles[id];
+      checkbox.checked = settings.styles?.[id] ?? false;
     }
   });
 
   // set variable input value
   forms.forEach((form) => {
-    const numInput = form.querySelector(`input[type="number"]`)
+    const numInput = form.querySelector(`input[type="number"]`);
+    if (!numInput) return;
     const varName = numInput.dataset.varName;
     if (varName === "itBlur") {
-      numInput.value = parseInt(result.settings?.blurOnIdle?.idleTimeout ?? 15);
-    } else {
-      numInput.value = parseInt(result.settings.varStyles[varName]);
+      numInput.value = parseInt(settings?.blurOnIdle?.idleTimeout ?? 15);
+    } else if (settings.varStyles?.[varName]) {
+      numInput.value = parseInt(settings.varStyles[varName]);
     }
-  })
+  });
 
-  if (result.settings?.schedule) {
+  if (settings?.schedule) {
     const startInput = document.getElementById("scheduleStartTime");
     const endInput = document.getElementById("scheduleEndTime");
-    if (startInput) startInput.value = result.settings.schedule.startTime ?? "09:00";
-    if (endInput) endInput.value = result.settings.schedule.endTime ?? "17:00";
+    if (startInput) startInput.value = settings.schedule.startTime ?? "09:00";
+    if (endInput) endInput.value = settings.schedule.endTime ?? "17:00";
 
-    const days = Array.isArray(result.settings.schedule.days)
-      ? result.settings.schedule.days
+    const days = Array.isArray(settings.schedule.days)
+      ? settings.schedule.days
       : [0, 1, 2, 3, 4, 5, 6];
     document.querySelectorAll(".day-btn").forEach(btn => {
       const dayNum = parseInt(btn.dataset.day, 10);
@@ -288,5 +288,26 @@ browser.storage.sync.get([settingsIdentifier]).then((result) => {
       }
     });
   }
+}
 
+// Update UI in real-time on storage change
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area === "sync" && changes.settings && changes.settings.newValue) {
+    applySettingsToUI(changes.settings.newValue);
+  }
+});
+
+// Load settings and update switches on popup open
+browser.storage.sync.get([settingsIdentifier]).then((result) => {
+  if (!result.hasOwnProperty(settingsIdentifier)) {
+    browser.runtime.reload();
+    return;
+  }
+
+  applySettingsToUI(result.settings);
+
+  // Ask background to verify schedule state on popup open
+  try {
+    browser.runtime.sendMessage({ action: "checkSchedule" });
+  } catch (e) {}
 });

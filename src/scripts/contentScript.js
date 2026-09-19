@@ -105,6 +105,19 @@ browser.storage.onChanged.addListener((changes, area) => {
 // Initial update once page loaded
 updateStyles();
 
+// Request schedule check from background on load and tab visibility change
+try {
+  browser.runtime.sendMessage({ action: "checkSchedule" });
+} catch (e) {}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    try {
+      browser.runtime.sendMessage({ action: "checkSchedule" });
+    } catch (e) {}
+  }
+});
+
 /**
  * timer
  *

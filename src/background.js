@@ -107,16 +107,17 @@ function isScheduleActive(schedule, date = new Date()) {
 }
 
 function checkSchedule() {
-  browser.storage.sync.get([settingsIdentifier]).then((result) => {
-    if (!result.hasOwnProperty(settingsIdentifier)) return;
+  return browser.storage.sync.get([settingsIdentifier]).then((result) => {
+    if (!result.hasOwnProperty(settingsIdentifier)) return null;
     const schedule = result.settings.schedule;
-    if (!schedule || !schedule.isEnabled) return;
+    if (!schedule || !schedule.isEnabled) return result.settings.on;
 
     const shouldBeOn = isScheduleActive(schedule);
     if (result.settings.on !== shouldBeOn) {
       result.settings.on = shouldBeOn;
-      browser.storage.sync.set(result);
+      return browser.storage.sync.set(result).then(() => shouldBeOn);
     }
+    return shouldBeOn;
   });
 }
 
@@ -146,6 +147,10 @@ function updateAlarms() {
       browser.alarms.create("scheduleEnd", {
         when: getNextTimeMs(schedule.endTime ?? "17:00"),
         periodInMinutes: 1440
+      });
+
+      browser.alarms.create("scheduleHeartbeat", {
+        periodInMinutes: 5
       });
     });
   });
@@ -213,8 +218,18 @@ browser.storage.onChanged.addListener((changes, area) => {
 
 // Handle alarm triggers
 browser.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === "scheduleStart" || alarm.name === "scheduleEnd") {
+  if (alarm.name === "scheduleStart" || alarm.name === "scheduleEnd" || alarm.name === "scheduleHeartbeat") {
     checkSchedule();
+  }
+});
+
+// Handle messages from contentScript or popup to check schedule
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message && message.action === "checkSchedule") {
+    checkSchedule().then((isOn) => {
+      sendResponse({ on: isOn });
+    });
+    return true;
   }
 });
 
